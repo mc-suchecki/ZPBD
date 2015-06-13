@@ -35,9 +35,10 @@ def store_station_in_db(data, cursor, connection):
     stands = data["featureMemberProperties"][0]["STOJAKI"]
     latitude = data["featureMemberCoordinates"][0]["latitude"]
     longitude = data["featureMemberCoordinates"][0]["longitude"]
+    coordinates = "SRID=4326;POINT(%s %s)" % (latitude, longitude)
     sql = "INSERT INTO bike_stations (object_id, location, station_nr, bikes, stands, station_coordinates) "
-    sql += "VALUES (%s, %s, %s, %s, %s, ST_GeographyFromText('SRID=4326;POINT(%s %s)') );"
-    cursor.execute(sql, (object_id, location, station_nr, bikes, stands, latitude, longitude))
+    sql += "VALUES (%s, %s, %s, %s, %s, ST_GeographyFromText(%s) );"
+    cursor.execute(sql, (object_id, location, station_nr, bikes, stands, coordinates))
     connection.commit()
     print("OK")
 
