@@ -2,7 +2,7 @@ CREATE TABLE bike_stations (
 	object_id INT PRIMARY KEY,
 	location VARCHAR(100),
 	station_nr INT,
-	bikes INT,
+	bikes VARCHAR(10),
 	stands INT,
 	station_coordinates GEOGRAPHY(POINT,4326)
 );
