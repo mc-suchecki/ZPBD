@@ -2,6 +2,7 @@
 __author__ = 'mc'
 
 import requests
+import psycopg2
 
 
 # constants for accessing the Warsaw Data API
@@ -25,11 +26,25 @@ def is_response_valid(response):
     return False
 
 
-def store_station_in_db(data, number):
-    """ stores station in PostGIS database """
-    print("Storing data for station number " + str(number) + "... ", end="")
-    # TODO store results in the database
+def store_station_in_db(data, cursor, connection):
+    """ stores station data in PostGIS database """
+    object_id = data["featureMemberProperties"][0]["OBJECTID"]
+    location = data["featureMemberProperties"][0]["LOKALIZACJA"]
+    station_nr = data["featureMemberProperties"][0]["NR_STACJI"]
+    bikes = data["featureMemberProperties"][0]["ROWERY"]
+    stands = data["featureMemberProperties"][0]["STOJAKI"]
+    latitude = data["featureMemberCoordinates"][0]["latitude"]
+    longitude = data["featureMemberCoordinates"][0]["longitude"]
+    sql = "INSERT INTO bike_stations (object_id, location, station_nr, bikes, stands, station_coordinates) "
+    sql += "VALUES (%s, %s, %s, %s, %s, ST_GeographyFromText('SRID=4326;POINT(%s %s)') );"
+    cursor.execute(sql, (object_id, location, station_nr, bikes, stands, latitude, longitude))
+    connection.commit()
     print("OK")
+
+
+# connect to the database and get cursor
+connection = psycopg2.connect("dbname='postgres' user='postgres' host='localhost' password='postgres'")
+cursor = connection.cursor()
 
 # load the bike stations
 stations_loaded = 0
@@ -41,7 +56,8 @@ for number in range(MIN_STATION_NR, MAX_STATION_NR + 1):
         response = requests.get(url)
         if is_response_valid(response):
             print("OK")
-            store_station_in_db(response.json(), number)
+            print("Storing data for station number " + str(number) + "... ", end="")
+            store_station_in_db(response.json()["result"], cursor, connection)
             stations_loaded += 1
             successful = True
         else:
@@ -52,3 +68,7 @@ for number in range(MIN_STATION_NR, MAX_STATION_NR + 1):
                 print(str(response.status_code))
 
 print("Successfully loaded " + str(stations_loaded) + " stations.")
+
+# close communication with the database
+cursor.close()
+connection.close()
