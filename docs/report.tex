@@ -138,20 +138,47 @@ Dane o~stacjach są~przechowywane w~tabeli \emph{bike\_stations}. W~celu optymal
 \section{Testy}
 W~celu przetestowania tak utworzonej bazy danych zostały utworzone następujące przykładowe zapytania SQL, wykonujące obliczenia na~podstawie danych przestrzennych:
 
-% TODO wstawić zapytania
+\begin{lstlisting}[language=SQL,caption=Zapytania służące do testowania indeksu.]
+--Zapytanie 1: wyszukanie stacji w zasiegu 5000m od podanego punktu
+SELECT * FROM bike_stations
+WHERE ST_DWithin(station_coordinates, ST_Transform(
+                 ST_GeomFromText('POINT(52.1464422 21.0282027)',4326),2059), 5000);
 
-Następnie zapytania zostały wielokrotnie wykonywane odpowiednio z~założonym i~zdjętym indeksem w~celu przetestowania jego wpływu na~wydajność zapytań przestrzennych. Wyniki zostały zamieszczone w~poniższej tabeli.
+--Zapytanie 2: odleglosc pomiedzy dwoma stacjami
+SELECT ST_Distance(
+  (SELECT station_coordinates FROM public.bike_stations WHERE station_nr = 6300),
+  (SELECT station_coordinates FROM public.bike_stations WHERE station_nr = 6301))
 
-% TODO tabela
-%\begin{figure}[H]
-%\begin{tabularx}{\textwidth}{ |p{2cm}|p{1cm}|p{5cm}|p{2.5cm}|X| }
-%\hline \textbf{Adres} & \textbf{Typ} & \textbf{Parametry} & \textbf{Zwracana wartość} & \textbf{Opis} \\ \hline
-%/brokers & POST & - & ID zarejestrowanego brokera & Metoda służąca do~rejestrowania nowego agenta w~symulacji. \\ \hline
-%/stock/price & GET & \textbf{day} numer iteracji & cena akcji w~danej iteracji & Metoda służąca do~pobierania historycznej ceny akcji. \\ \hline
-%/stock/buy & POST & \textbf{price} proponowana cena, \textbf{amount} liczba akcji do~kupienia & liczba kupionych akcji i~ich cena & Metoda służąca do~złożenia oferty zakupu akcji przez agenta. \\ \hline
-%/stock/sell & POST & \textbf{price} proponowana cena, \textbf{amount} liczba akcji do~sprzedania & liczba kupionych akcji i~ich cena & Metoda służąca do~złożenia oferty sprzedaży akcji przez agenta. \\ \hline
-%\end{tabularx}
-%\end{figure}
+--Zapytanie 3: znajdz stacje najblizsze dwom punktom
+SELECT 'start' AS label, object_id, location, station_nr, bikes, stands, minDist
+FROM bike_stations
+INNER JOIN (
+  SELECT MIN(distance) minDist FROM (
+    SELECT *, ST_Distance(station_coordinates,ST_Transform(ST_GeomFromText(
+    'POINT(52.1464422 21.0282027)',4326),2059)) distance FROM bike_stations) asd
+) minTab ON ST_Distance(station_coordinates,ST_Transform(ST_GeomFromText(
+'POINT(52.1464422 21.0282027)',4326),2059)) = minTab.minDist
+UNION
+SELECT 'end' AS label, object_id, location, station_nr, bikes, stands, minDist
+FROM bike_stations
+INNER JOIN (SELECT MIN(distance) minDist FROM (
+Select *, ST_Distance(station_coordinates,ST_Transform(ST_GeomFromText(
+'POINT(52.2773211 20.8567145)',4326),2059)) distance
+From bike_stations) asd
+) minTab ON ST_Distance(station_coordinates,ST_Transform(ST_GeomFromText(
+'POINT(52.2773211 20.8567145)',4326),2059)) = minTab.minDist
+\end{lstlisting}
+
+Następnie zapytania zostały wielokrotnie wykonywane odpowiednio z~założonym i~zdjętym indeksem w~celu przetestowania jego wpływu na~wydajność zapytań przestrzennych. Z~racji na~małą ilość dostępnych danych zostały one uprzednio zduplikowane, w~celu przybliżenia symulacji do~realnych systemów. Ostatecznie zapytania były testowane na~tabeli liczącej 21336 wierszy. Wyniki zostały zamieszczone w~poniższej tabeli.
+
+\begin{figure}[H]
+\begin{tabular}{ | c | c | c | }
+\hline \textbf{Zapytanie} & \textbf{Wynik z~indeksem} & \textbf{Wynik bez indeksu} \\ \hline
+  Zapytanie 1 & 536ms & 540ms \\ \hline
+  Zapytanie 2 & 18ms & 22ms \\ \hline
+  Zapytanie 3 & 92ms & 134ms \\ \hline
+\end{tabular}
+\end{figure}
 
 \section{Wnioski}
 % TODO
