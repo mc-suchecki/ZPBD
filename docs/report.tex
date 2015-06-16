@@ -181,6 +181,11 @@ Następnie zapytania zostały wielokrotnie wykonywane odpowiednio z~założonym 
 \end{figure}
 
 \section{Wnioski}
-% TODO
+Optymalizacja bazy z danymi przestrzennymi pod kątem częstych zapytań dotyczących tychże danych składała się z dwóch kroków:
+\begin{enumerate}
+	\item reprezentacja danych przestrzennych przy pomocy typu GEOMETRY zamiast GEOGRAPHY, co pozwoliło na korzystanie ze zdecydowanie szybszych obliczeń odległości (odległość na płaszczyźnie zamiast długości łuku na sferze)
+	\item stworzenie indeksu na kolumnie z danymi przestrzennymi
+\end{enumerate}
+Przedstawione wyżej czasy wykonania zapytań testowych ewidentnie wskazują na to, że istnienie indeksu na kolumnie z danymi przestrzennymi skraca czas wykonania zapytania.
 
 \end{document}
