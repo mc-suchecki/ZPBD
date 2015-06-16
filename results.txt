@@ -1,7 +1,10 @@
 RESULTS:
+	query1
+		with idx: 536ms
+		no idx: 540ms
 	query2
-		with idx: 92ms
-		no idx: 134ms
+		with idx: 18ms
+		no idx: 22ms
 	query3
 		with idx: 92ms
 		no idx: 134ms
