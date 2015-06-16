@@ -4,7 +4,7 @@ CREATE TABLE bike_stations (
 	station_nr INT,
 	bikes VARCHAR(10),
 	stands INT,
-	station_coordinates GEOGRAPHY(POINT,4326)
+	station_coordinates GEOMETRY(POINT,2059)
 );
 
 CREATE INDEX bike_stations_gix ON bike_stations USING GIST ( station_coordinates );

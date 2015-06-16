@@ -1,9 +1,34 @@
 INSERT INTO bike_stations (object_id, location, station_nr, bikes, stands, station_coordinates)
-VALUES (0,'asd',0,0,0, ST_GeographyFromText('SRID=4326;POINT(0 49)') );
+VALUES (0,'asd',0,0,0, ST_Transform(ST_GeomFromText('POINT(52.1464422 21.0282027)',4326),2059) );
 
-SELECT * FROM bike_stations WHERE ST_DWithin(station_coordinates, ST_GeographyFromText('SRID=4326;POINT(52.1464422 21.0282027)'), 5000);
+SELECT * FROM bike_stations WHERE ST_DWithin(station_coordinates, ST_Transform(ST_GeomFromText('POINT(52.1464422 21.0282027)',4326),2059), 5000);
 
 SELECT ST_Distance(
-		ST_Transform(ST_GeomFromText('POINT(52.271620 19.048861)',4326),2059),
-		ST_Transform(ST_GeomFromText('POINT(52.266636 19.040256)',4326),2059)
+		(SELECT station_coordinates FROM public.bike_stations WHERE station_nr = 6300),
+		(SELECT station_coordinates FROM public.bike_stations WHERE station_nr = 6301)
 	)
+	
+SELECT * FROM bike_stations WHERE station_nr
+
+SELECT object_id, MIN( ST_Distance(station_coordinates,ST_Transform(ST_GeomFromText('POINT(52.1464422 21.0282027)',4326),2059)) )
+FROM bike_stations
+
+
+#znajdz stacje najblizsze dwom punktom
+Select 'start' as label, object_id, location, station_nr, bikes, stands, minDist
+From bike_stations
+INNER JOIN (
+	SELECT MIN(distance) minDist FROM (
+		Select *, ST_Distance(station_coordinates,ST_Transform(ST_GeomFromText('POINT(52.1464422 21.0282027)',4326),2059)) distance
+		From bike_stations
+		) asd
+) minTab ON ST_Distance(station_coordinates,ST_Transform(ST_GeomFromText('POINT(52.1464422 21.0282027)',4326),2059)) = minTab.minDist
+UNION
+Select 'end' as label, object_id, location, station_nr, bikes, stands, minDist
+From bike_stations
+INNER JOIN (
+	SELECT MIN(distance) minDist FROM (
+		Select *, ST_Distance(station_coordinates,ST_Transform(ST_GeomFromText('POINT(52.2773211 20.8567145)',4326),2059)) distance
+		From bike_stations
+		) asd
+) minTab ON ST_Distance(station_coordinates,ST_Transform(ST_GeomFromText('POINT(52.2773211 20.8567145)',4326),2059)) = minTab.minDist
