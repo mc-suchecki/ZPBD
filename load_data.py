@@ -35,16 +35,16 @@ def store_station_in_db(data, cursor, connection):
     stands = data["featureMemberProperties"][0]["STOJAKI"]
     latitude = data["featureMemberCoordinates"][0]["latitude"]
     longitude = data["featureMemberCoordinates"][0]["longitude"]
-    coordinates = "SRID=4326;POINT(%s %s)" % (latitude, longitude)
+    coordinates = "POINT(%s %s)" % (latitude, longitude)
     sql = "INSERT INTO bike_stations (object_id, location, station_nr, bikes, stands, station_coordinates) "
-    sql += "VALUES (%s, %s, %s, %s, %s, ST_GeographyFromText(%s) );"
+    sql += "VALUES (%s, %s, %s, %s, %s, ST_Transform(ST_GeomFromText(%s,4326),2059));"
     cursor.execute(sql, (object_id, location, station_nr, bikes, stands, coordinates))
     connection.commit()
     print("OK")
 
 
 # connect to the database and get cursor
-connection = psycopg2.connect("dbname='postgres' user='postgres' host='localhost' password='postgres'")
+connection = psycopg2.connect("dbname='postgres' user='postgres' host='10.0.0.4' password='postgres'")
 cursor = connection.cursor()
 
 # load the bike stations
