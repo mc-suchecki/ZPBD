@@ -151,21 +151,21 @@ SELECT ST_Distance(
 
 --Zapytanie 3: znajdz stacje najblizsze dwom punktom
 SELECT 'start' AS label, object_id, location, station_nr, bikes, stands, minDist
-FROM bike_stations
-INNER JOIN (
+FROM bike_stations INNER JOIN (
   SELECT MIN(distance) minDist FROM (
     SELECT *, ST_Distance(station_coordinates,ST_Transform(ST_GeomFromText(
-    'POINT(52.1464422 21.0282027)',4326),2059)) distance FROM bike_stations) asd
-) minTab ON ST_Distance(station_coordinates,ST_Transform(ST_GeomFromText(
+    'POINT(52.1464422 21.0282027)',4326),2059)) distance
+    FROM bike_stations) asd) minTab
+ON ST_Distance(station_coordinates,ST_Transform(ST_GeomFromText(
 'POINT(52.1464422 21.0282027)',4326),2059)) = minTab.minDist
 UNION
 SELECT 'end' AS label, object_id, location, station_nr, bikes, stands, minDist
-FROM bike_stations
-INNER JOIN (SELECT MIN(distance) minDist FROM (
-Select *, ST_Distance(station_coordinates,ST_Transform(ST_GeomFromText(
-'POINT(52.2773211 20.8567145)',4326),2059)) distance
-From bike_stations) asd
-) minTab ON ST_Distance(station_coordinates,ST_Transform(ST_GeomFromText(
+FROM bike_stations INNER JOIN (
+  SELECT MIN(distance) minDist FROM (
+    SELECT *, ST_Distance(station_coordinates,ST_Transform(ST_GeomFromText(
+      'POINT(52.2773211 20.8567145)',4326),2059)) distance
+    FROM bike_stations) asd) minTab
+ON ST_Distance(station_coordinates,ST_Transform(ST_GeomFromText(
 'POINT(52.2773211 20.8567145)',4326),2059)) = minTab.minDist
 \end{lstlisting}
 

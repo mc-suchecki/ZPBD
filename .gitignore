@@ -58,3 +58,7 @@ target/
 
 # pyCharm files
 .idea/
+
+# LaTeX docs
+docs/*.aux
+docs/*.out

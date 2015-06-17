@@ -7,4 +7,4 @@ echo 'local   all         postgres                          md5' >> /etc/postgre
 sudo service postgresql restart
 
 # create db
-psql -U postgres postgres -f ./dbScripts/create_db.sql
+psql -U postgres postgres -f ./db/create_db.sql

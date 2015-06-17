@@ -9,7 +9,7 @@ $ git clone git@github.com:mc-suchecki/ZPBD.git
 $ cd ZPBD
 $ chmod +x ./install.sh
 $ ./install.sh
-$ chmod +x ./setup_DB.sh
+$ chmod +x ./setup_db.sh
 $ ./setup_DB.sh
 $ python load_data.py
 ```
